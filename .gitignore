@@ -9,6 +9,7 @@
 *.tsv
 *.xlsx
 *.xls
+*.txt
 ## ignore 
 .vscode/
 .ipynb_checkpoints/
