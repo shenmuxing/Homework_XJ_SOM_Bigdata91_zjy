@@ -155,3 +155,12 @@ def Marx_val_generate(model, start_words, idx_to_char, char_to_idx, device, pref
     model.train()
     return results
 
+
+def grad_clipping(params, theta, device):
+    norm = torch.tensor([0.0], device=device)
+    for param in params:
+        norm += (param.grad.data ** 2).sum()
+    norm = norm.sqrt().item()
+    if norm > theta:
+        for param in params:
+            param.grad.data *= (theta / norm)

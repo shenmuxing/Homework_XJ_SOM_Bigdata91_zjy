@@ -12,10 +12,21 @@
 *.txt
 *.mtx
 *.npz
+*.pkl
+*.h5
+
+
+## ignore 压缩包文件等
+*.zip
+*.rar 
+
 ## ignore 
 .vscode/
 .ipynb_checkpoints/
 
+## ignore google drvie
+.tmp.drivedownload
+.tmp.driveupload
 
 # User-specific files
 *.rsuser
