@@ -1,0 +1,40 @@
+\ProvidesPackage{naturetex}
+\usepackage{ctex}
+\usepackage{etoolbox}
+\usepackage{authblk}
+\usepackage[utf8]{inputenc}
+\usepackage{lipsum} % Just for the example
+\usepackage{authblk}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{fullpage}
+\usepackage{setspace}
+
+%% Replace with your paper title
+\newcommand{\papertitle}{北京爱彼迎房源数据分析：怎样定价才能获得最高收入？}
+\newtoggle{supp}
+\togglefalse{supp}
+
+\DeclareOption{supp}{\toggletrue{supp}}
+\ProcessOptions\relax
+
+\iftoggle{supp}{
+	\title{Supplementary Information for\\ \papertitle}
+	\usepackage[style=nature, backend=biber]{biblatex}
+	\addbibresource{bibliography.bib}
+}{
+	\title{\papertitle}
+}
+
+%% Replace with your authorship info
+\author[1,*]{\textbf{赵敬业}}
+\affil[*]{\small 学号: \texttt{219371622}}
+\date{}
+
+\newcommand{\beginsupplement}{%
+	\setcounter{table}{0}
+	\renewcommand{\tablename}{Supplementary Table}
+	\setcounter{figure}{0}
+	\renewcommand{\figurename}{Supplementary Figure}
+}
