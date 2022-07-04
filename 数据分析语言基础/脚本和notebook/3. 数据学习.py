@@ -16,11 +16,14 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
 from sklearn.metrics import mean_squared_error,r2_score,mean_absolute_error
 from hyperopt import tpe,fmin,Trials,hp,rand,anneal,space_eval
-file_path="E:/python/数据分析语言基础/大作业/脚本和notebook/"
+file_path="../latex/tex/figures/"
+
+
 # %%
-res=Process_data(file_path+"Beijing-result-2021-10-26.csv")
+res=Process_data("Beijing-result-2022-06-21.csv")
 X_columns=res["X_columns"]
 X_train,X_test,y_train,y_test=res["X_train"],res["X_test"],res["y_train"],res["y_test"]
+
 
 
 # %%
@@ -79,6 +82,11 @@ class Machine(object):
         self.Report()
         return self.clf
 
+
+# %%
+from lightgbm import LGBMRegressor
+clf_LGBM=LGBMRegressor()
+
 # %%
 from lightgbm import LGBMRegressor
 clf_LGBM=LGBMRegressor()
@@ -92,11 +100,13 @@ params_LGBM={
 LGBM_machine=Machine(clf_LGBM,params_LGBM)
 clf_LGBM=LGBM_machine.headquarter(model_name="LGBM")
 
+
 # %%
 feature_importance=clf_LGBM.feature_importances_
 sort_index=np.argsort(feature_importance)
 print("重要性:",feature_importance[sort_index[:-6:-1]])
 print("特征名称：",X_columns[sort_index[:-6:-1]].to_numpy())
+
 
 # %%
 from sklearn.svm import SVR
@@ -108,6 +118,7 @@ params_SVR={
            }
 SVR_machine=Machine(clf_SVR,params_SVR)
 clf_SVR=SVR_machine.headquarter(model_name="SVR")
+
 
 # %%
 from sklearn.linear_model import ElasticNet
@@ -121,11 +132,12 @@ param_Ela={
 Ela_machine=Machine(clf_Ela,param_Ela)
 Ela_machine.headquarter(model_name="ElasticNet")
 
+
 # %% [markdown]
-# # 三种算法总结
-# * SVR 能凑合，但是算的太慢，7分钟才算完一个
-# * Ela一开始属性太差，还需要再调参
-# * light GBM效果属实很惊艳
+#  # 三种算法总结
+#  * SVR 能凑合，但是算的太慢，7分钟才算完一个
+#  * Ela一开始属性太差，还需要再调参
+#  * light GBM效果属实很惊艳
 
 # %%
 y_pre=clf_LGBM.predict(X_test)
@@ -138,5 +150,8 @@ plt.xlabel("价格")
 plt.ylabel("预测预订率")
 plt.legend();
 plt.show();
+
+# %%
+
 
 

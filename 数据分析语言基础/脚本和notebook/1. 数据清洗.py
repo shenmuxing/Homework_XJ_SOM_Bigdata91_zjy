@@ -1,14 +1,15 @@
 # %% [markdown]
-# ## 读取文件
+#  ## 读取文件
 
 # %%
 from 处理文件 import Read
 import numpy as np
 import pandas as pd
 # 读取的路径
-read_file="E:/python/数据分析语言基础/大作业/Airbnb数据/Beijing-2021-10-26/"
-# 整合出来的表格写入的路径
-write_file="E:/python/数据分析语言基础/大作业/脚本和notebook/Beijing-result-2021-10-26.csv"
+read_file="../data/Beijing-2022-06-21/"
+# 整合出来的csv写入的路径
+write_file="Beijing-result-2022-06-21.csv"
+
 # %%
 Beijing=Read(read_file)
 
@@ -17,40 +18,45 @@ reviews=Beijing["reviews_2"]
 print("reviews.head():")
 print(reviews.head())
 
+
 # %%
 calender=Beijing["calender"]
 print("calender.head():")
 print(calender.head())
+
 
 # %%
 listings=Beijing["listings"]
 print("listings.head():")
 print(listings.head())
 
+
 # %%
 listings_2=Beijing["listings_2"]
 print("listings_2.head():")
 print(listings_2.head())
 
-# %% [markdown]
-# * 结论一
-#     * 经过上面一顿操作，发现目前对我们有用的表格好像是listings,reviews,listings_2
-#     * 关键的主键有两种，一种是用户id,一种是房源的id
-#     * 聚合时，应该用listings,reviews的模式来聚合，因为我们关注的是房源定价的高低。
-#     * 进一步看看
 
 # %% [markdown]
-# ## 首先应该把reviews中的文本进行充分之挖掘，得到好评、差评的数据
+#  * 结论一
+#      * 经过上面一顿操作，发现目前对我们有用的表格好像是listings,reviews,listings_2
+#      * 关键的主键有两种，一种是用户id,一种是房源的id
+#      * 聚合时，应该用listings,reviews的模式来聚合，因为我们关注的是房源定价的高低。
+#      * 进一步看看
+
+# %% [markdown]
+#  ## 首先应该把reviews中的文本进行充分之挖掘，得到好评、差评的数据
 
 # %%
 import textblob
 from snownlp import SnowNLP
 
-# %% [markdown]
-# * 情绪可以考虑不只是描述其正负面，可以考虑赋予其值。
 
 # %% [markdown]
-# ### 使用apply函数返回各个评论的情绪
+#  * 情绪可以考虑不只是描述其正负面，可以考虑赋予其值。
+
+# %% [markdown]
+#  ### 使用apply函数返回各个评论的情绪
 
 # %%
 def Process_review(reviews_2:str)->str:
@@ -62,17 +68,20 @@ def Process_review(reviews_2:str)->str:
     s=SnowNLP(temp)
     return s.sentiments*2-1+blob.sentiment.polarity*2
 
+
 # %%
 print("正在对reviews进行情绪评估，可能需要若干分钟时间...")
 reviews.loc[:,"sentiment"]=reviews.loc[:,"comments"].apply(Process_review)
 
+
 # %% [markdown]
-# ## 分别探索各个数据的模式，挖掘可能的信息
+#  ## 分别探索各个数据的模式，挖掘可能的信息
 
 # %%
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set_style("whitegrid")
+
 
 # %%
 def describe(data:pd.DataFrame):
@@ -94,35 +103,37 @@ def describe(data:pd.DataFrame):
         plt.show()
     print("="*70)
 
-# %% [markdown]
-# * reviews结果说明：
-#     * sentiment: 按照listing_id进行聚合与别的listing进行合并
 
 # %% [markdown]
-# * calender是按照未来365天listing的日历进行排列的
-#     * 主键：listing_id,date
-#     * available：是否有房。
-#     * price,adjusted_price:adjusted_price应该是根据季度进行的正儿八经的价格，和是否有房有着很大的关系，应该分时间、listing_id进一步探索
-#     * minimum_nights,maximum_nights和房子的价格有很大关系。
-# * 总体来说，应该按照calender进行计算，把如下公式作为房东$x$满意收益（在4.典型房东应用部分会用到）：
-#     $$Adjusted\_price_x \cdot not_available_x-\frac{\sum_{i}{Adjust\_price_{i,j}\cdot \mathbf{1}}}{\sum_{i}1}$$
-#     其中$i$是这个地区中的所有房子,$j$是365天每天的价格。
+#  * reviews结果说明：
+#      * sentiment: 按照listing_id进行聚合与别的listing进行合并
 
 # %% [markdown]
-# * 缺失元素之间有很强的关联
+#  * calender是按照未来365天listing的日历进行排列的
+#      * 主键：listing_id,date
+#      * available：是否有房。
+#      * price,adjusted_price:adjusted_price应该是根据季度进行的正儿八经的价格，和是否有房有着很大的关系，应该分时间、listing_id进一步探索
+#      * minimum_nights,maximum_nights和房子的价格有很大关系。
+#  * 总体来说，应该按照calender进行计算，把如下公式作为房东$x$满意收益（在4.典型房东应用部分会用到）：
+#      $$Adjusted\_price_x \cdot not_available_x-\frac{\sum_{i}{Adjust\_price_{i,j}\cdot \mathbf{1}}}{\sum_{i}1}$$
+#      其中$i$是这个地区中的所有房子,$j$是365天每天的价格。
 
 # %% [markdown]
-# * listings_2应该是主要的参数来源
-# * listings表是listings_2表的子集
+#  * 缺失元素之间有很强的关联
 
 # %% [markdown]
-# ## 数据清洗-数据合并-数据再清洗
+#  * listings_2应该是主要的参数来源
+#  * listings表是listings_2表的子集
+
+# %% [markdown]
+#  ## 数据清洗-数据合并-数据再清洗
 
 # %%
 # 把reviews进行聚合，主要是进行情感聚合
 group_reviews=reviews.groupby("listing_id",as_index=False)["sentiment"].mean()
 print("对评论数据计算情绪值结束，每个房源的平均情绪展示前五条：")
 print(group_reviews.head())
+
 
 # %%
 def To_number(str_price):
@@ -154,6 +165,7 @@ group_calender.index=[i for i in range(0,group_calender.shape[0])]
 print("聚合完成，展示如下：")
 print(group_calender.head())
 
+
 # %%
 # 清洗listings_2，并确定入列元素
 listings_2["is_description"]=1
@@ -169,6 +181,7 @@ listings_2=listings_2.loc[listings_2.loc[:,"host_acceptance_rate"].notna(),:]
 #reviews_per_month缺失值到时候直接置为0
 listings_2.loc[listings_2.loc[:,"reviews_per_month"].isna(),"reviews_per_month"]=0
 
+
 # %%
 # 确定所有进入数据合并的列
 group_calender_column=["listing_id","adjusted_price","notavailable"]
@@ -182,6 +195,7 @@ listings_2_column=["id","is_description","is_neighborhood_overview","is_host_abo
        'review_scores_communication', 'review_scores_location','review_scores_value', 'instant_bookable', 'reviews_per_month']
 
 
+
 # %%
 print("正在整合列表...")
 result=pd.merge(group_calender.loc[:,group_calender_column],group_reviews.loc[:,group_reviews_column],how="left",left_on=["listing_id"],right_on=["listing_id"])
@@ -190,9 +204,11 @@ result=result.loc[:,[i for i in result.columns if i!="id"]]
 print("整合完成...")
 print(result.head())
 
+
 # %%
 result=result.loc[result.loc[:,"is_description"].notna(),:]
 result.loc[result.loc[:,"sentiment"].isna(),"sentiment"]=0
+
 
 # %%
 # bathrooms 按照个数来处理
@@ -214,6 +230,7 @@ def Process_bathrooms(text:str)->float:
 result.loc[:,"bathrooms"]=result.loc[:,"bathrooms_text"].apply(Process_bathrooms)
 result=result.drop("bathrooms_text",axis=1)
 
+
 # %%
 def as_type(name):
     """把一些列变成float形式"""
@@ -229,6 +246,7 @@ def as_time(time):
     return float(a.to_numpy()/10**9/3600/24)    
 result.loc[:,"host_time"]=result.loc[:,"host_since"].apply(as_time)
 result=result.drop("host_since",axis=1)
+
 
 
 # %%
@@ -254,6 +272,7 @@ result.loc[result.loc[:,"host_identity_verified"]=="t","host_identity_verified"]
 result.loc[result.loc[:,"host_identity_verified"]=="f","host_identity_verified"]=0
 
 
+
 # %%
 def Strip_verifications(text:str):
     """把verifications里面的文本长度存储起来"""
@@ -265,11 +284,13 @@ def Strip_verifications(text:str):
         return 0
 result.loc[:,"host_verifications"]=result.loc[:,"host_verifications"].apply(Strip_verifications)
 
+
 # %%
 # 把不是float的全部转换成float
 for i in result.columns:
     if type(result.loc[0,i])==str:
         print(i,type(result.loc[0,i]))
+
 
 # %%
 from sklearn.preprocessing import OneHotEncoder
@@ -289,6 +310,7 @@ result=encoder("property_type",result)
 result=encoder("room_type",result)
 result=encoder("neighbourhood_cleansed",result)
 
+
 # %%
 # 在填补剩下的缺失值之前需要对变量进行其他操作
 from sklearn.impute import KNNImputer
@@ -297,7 +319,12 @@ result=pd.DataFrame(clf.fit_transform(result),columns=result.columns,index=resul
 print("清洗数据结束，展示最终结果：")
 describe(result)
 
+
 # %%
 result.to_csv(write_file)
+
+
+# %%
+
 
 

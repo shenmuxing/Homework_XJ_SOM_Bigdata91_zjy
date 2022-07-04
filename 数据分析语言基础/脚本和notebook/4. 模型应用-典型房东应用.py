@@ -1,5 +1,5 @@
 # %%
-file_path="E:/python/数据分析语言基础/大作业/脚本和notebook/"
+file_path="../latex/tex/figures/"
 import pandas as pd
 import numpy as np
 from 处理文件 import Process_data
@@ -25,9 +25,10 @@ def is_in_notebook():
     return 'ipykernel' in sys.modules
 
 
+
 # %%
 # 进行聚类，寻找潜在的价格可能没有达到较大收益的
-res=Process_data(file_path+"Beijing-result-2021-10-26.csv",with_scale=True)
+res=Process_data("Beijing-result-2021-10-26.csv",with_scale=True)
 X_columns=res["X_columns"]
 X_train,X_test,y_train,y_test=res["X_train"],res["X_test"],res["y_train"],res["y_test"]
 
@@ -43,9 +44,10 @@ data=pd.DataFrame(np.append(np.append(y_train,y_test,axis=0).reshape(len(y_train
 
 
 
+
 # %% [markdown]
-# * 总体来说，应该按照calender进行计算，把如下公式作为房东$x$满意收益：
-#     $$Adjusted\_price_x \cdot not\_available_x-\frac{\sum_{i}{Adjust\_price_{i,j}\cdot \mathbf{1}}}{\sum_{i}1}$$
+#  * 总体来说，应该按照calender进行计算，把如下公式作为房东$x$满意收益：
+#      $$Adjusted\_price_x \cdot not\_available_x-\frac{\sum_{i}{Adjust\_price_{i,j}\cdot \mathbf{1}}}{\sum_{i}1}$$
 
 # %%
 # 计算各个区域中经济效益，计算公式如上所述，“deviation”高的变量说明经济效率高：定价也高，预订率也高。
@@ -61,9 +63,11 @@ for column in columns:
         
 
 
+
 # %%
 print("展示一部分效益不好的房源...")
 print(data.sort_values(by="deviation",ascending=True,kind="stable").head(20).loc[:,["notavailable","adjusted_price","deviation"]])#.loc[:,columns]
+
 
 # %%
 # 把训练集和测试集合并起来训练模型，假定MSE还是3.数据学习中在测试集上的表现
@@ -75,6 +79,7 @@ clf=LGBMRegressor()
 params_LGBM=np.load(file_path+"LGBMbest_params.npy",allow_pickle=True).item()
 clf.set_params(**params_LGBM)
 clf.fit(X,y)
+
 
 # %%
 plt.style.use("seaborn")
@@ -93,12 +98,12 @@ def Price(X_gen):
     """标准化价格"""
     return np.exp(X_gen[:,0]*res["scale"][0]+res["mean"][0])
 
-def Show_picture(i):
+def Show_picture(i,name:str):
     # 生成y_pred,绘制y_pred图片
     X_gen=Generate_price(i)
     y_pred=clf.predict(X_gen)
-    y_pred_up=y_pred*(1+np.sqrt(mse));
-    y_pred_down=y_pred*(1-np.sqrt(mse));
+    y_pred_up=y_pred*(1+mse);
+    y_pred_down=y_pred*(1-mse);
     y_pred[y_pred>=1]=1
     y_pred[y_pred<=0]=0
     y_pred_down[y_pred_down>1]=1
@@ -127,6 +132,7 @@ def Show_picture(i):
     plt.xlabel("房源价格")
     plt.ylabel("收入")    
     plt.legend();
+    plt.savefig(file_path+name+".png",dpi=300)
     plt.show();
     print("现在价格：")
     print(np.exp(data.loc[i,"adjusted_price"]*res["scale"][0]+res["mean"][0]))
@@ -134,26 +140,31 @@ def Show_picture(i):
     print(data.loc[i,"deviation"])
 
 
-# %% [markdown]
-# ## 普通房源
-
-# %%
-Show_picture(0)
-
-# %%
-Show_picture(5)
 
 # %% [markdown]
-# ## 低收益率房源
+#  ## 普通房源
 
 # %%
-Show_picture(31)
+Show_picture(0,"好房源1")
+
 
 # %%
-Show_picture(349)
+Show_picture(5,"普通房源1")
+
+# %% [markdown]
+#  ## 低收益率房源
 
 # %%
-Show_picture(811)
+Show_picture(31,"坏房源1")
+
+
+# %%
+Show_picture(349,"坏房源2")
+
+
+# %%
+Show_picture(811,"坏房源3")
+
 
 # %%
 # 保留的这段注释掉的代码可以用来画着玩...这是当时笔者探索用到的代码
@@ -166,5 +177,8 @@ Show_picture(811)
 #     else:
 #         clear_output()
     
+
+
+
 
 

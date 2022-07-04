@@ -1,8 +1,8 @@
 # %% [markdown]
-# # 说明
-# * 本notebook配置如下
-#     * python；3.7.0
-#     * torch:1.10.1
+#  # 说明
+#  * 本notebook配置如下
+#      * python；3.7.0
+#      * torch:1.10.1
 
 # %%
 import numpy as np
@@ -12,16 +12,18 @@ from torch.utils.data import Dataset
 import torch.nn as nn
 from 处理文件 import Process_data
 from hyperopt import tpe,fmin,Trials,hp,rand,anneal,space_eval
+file_path="../latex/tex/figures/"
 
 # %%
-res=Process_data("E:/python/数据分析语言基础/大作业/脚本和notebook/Beijing-result-2021-10-26.csv")
+res=Process_data("Beijing-result-2022-06-21.csv")
 X_columns=res["X_columns"]
 X_train,X_test,y_train,y_test=res["X_train"],res["X_test"],res["y_train"],res["y_test"]
 y_train=y_train.to_numpy()
 y_test=y_test.to_numpy()
 
+
 # %% [markdown]
-# ## 定义模型
+#  ## 定义模型
 
 # %%
 class MyDNN(nn.Module):
@@ -39,6 +41,7 @@ class MyDNN(nn.Module):
         x=self.output(x)
         output=x
         return output
+
 
 # %%
 # 定义损失函数
@@ -59,6 +62,7 @@ def r2_loss(output, target):
     return r2
 #也有nn.L1Loss
 
+
 # %%
 # 定义Loader,因为这里数据量较小，一个batch定义为1000
 class MyDataset(Dataset):
@@ -72,6 +76,7 @@ class MyDataset(Dataset):
         return len(self.y)
     def __getitem__(self,idx):
         return self.X[idx],self.y[idx]
+
 
 # %%
 class Machine(object):
@@ -165,6 +170,7 @@ class Machine(object):
         self.Report()
         return self.clf
 
+
 # %%
 params={
     "batch_size":hp.choice("batch_size",[500,1000,5000,10000]),
@@ -176,7 +182,11 @@ params={
 model=Machine(params)
 clf=model.headquarter("Deeplearning model")
 
+
 # %%
+
+
+
 
 
 
