@@ -1,0 +1,41 @@
+\ProvidesPackage{naturetex}
+\usepackage{ctex}
+\usepackage{etoolbox}
+\usepackage{authblk}
+\usepackage[utf8]{inputenc}
+\usepackage{lipsum} % Just for the example
+\usepackage{authblk}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{fullpage}
+\usepackage{setspace}
+
+%% Replace with your paper title
+\newcommand{\papertitle}{使用特征提取的方法预测NFT价格}
+\newtoggle{supp}
+\togglefalse{supp}
+
+\DeclareOption{supp}{\toggletrue{supp}}
+\ProcessOptions\relax
+
+\iftoggle{supp}{
+	\title{Supplementary Information for\\ \papertitle}
+	\usepackage[style=nature, backend=biber]{biblatex}
+	\addbibresource{bibliography.bib}
+}{
+	\title{\papertitle}
+}
+
+%% Replace with your authorship info
+\author[1,*]{\textbf{赵敬业}}
+\affil[1]{西安交通大学，管理学院}
+\affil[*]{\small 通讯作者: \texttt{2193712622@stu.xjtu.edu.cn}}
+\date{}
+
+\newcommand{\beginsupplement}{%
+	\setcounter{table}{0}
+	\renewcommand{\tablename}{Supplementary Table}
+	\setcounter{figure}{0}
+	\renewcommand{\figurename}{Supplementary Figure}
+}
